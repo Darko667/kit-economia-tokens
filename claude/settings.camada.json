@@ -1,0 +1,24 @@
+{
+  "model": "sonnet",
+  "effortLevel": "medium",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/economia/statusline.sh"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/economia/modo.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

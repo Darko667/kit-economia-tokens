@@ -1,0 +1,12 @@
+## B7 · Lições técnicas (armadilhas já pagas)
+- Linux pt_BR: `printf '%.0f'` e `sort -g` esperam vírgula → scripts com `export LC_ALL=C`. `iconv //TRANSLIT` em locale C vira "?" → `LC_ALL=C.UTF-8 iconv`.
+- jq: `.command | test()` quebra em hook sem `command` → `(.command // "")`.
+- Desinstalar só apaga o que for idêntico ao instalado (`cmp`); nunca arquivo do usuário com mesmo nome.
+- Edição por marcadores: recusar se início/fim estiverem incompletos, antes de alterar qualquer coisa; validar JSON antes de mexer.
+- `find -newer` não vê mudança no mesmo tique do relógio → nos testes, marca no passado (`touch -d "-30 sec"`).
+- Testes que chamam instalador que roda testes → variável de guarda. Testar hook com projeto falso, não com a suíte real.
+- Hook "após Edit/Write" não vê edição por terminal ou à mão → usar `Stop` + datas de arquivo.
+- `SessionEnd`: 1,5 s e não garantido em fechamento forçado → só disparar processo destacado (`setsid`, `async`) e ter varredura no início.
+- O app desktop tem login próprio; processo em segundo plano usa o login do `claude` de terminal. `claude -p` roda os hooks do usuário, a menos que `--setting-sources project`.
+- `--system-prompt` troca o prompt padrão (menos tokens); `--json-schema` impõe formato; `--no-session-persistence` evita resumir a si mesmo.
+- Transcrição bruta (21 MB) só com falas cai para ~230 mil caracteres (filtrar `type` user/assistant, texto, sem `<…>` de sistema).

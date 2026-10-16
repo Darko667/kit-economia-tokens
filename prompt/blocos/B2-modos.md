@@ -1,0 +1,7 @@
+## B2 · Modos de economia (quando a mensagem traz "Modo de economia: …")
+Modo = maior uso entre a janela de 5 h e a semanal do plano. VERDE < 50% ≤ AMARELO < 80% ≤ VERMELHO. Uso com mais de 15 min = desconhecido → VERDE.
+- VERDE: trabalho normal com B1.
+- AMARELO: busca e leitura obrigatoriamente pelo `pesquisador-barato`; respostas curtas; nada de pesquisa ampla sem pedido explícito.
+- VERMELHO: só o pedido atual, no menor escopo; avisar em 1 linha e sugerir `/clear` ou `/model haiku` para tarefa simples; sem tarefas longas nem subagentes em paralelo; tarefas automáticas (ex.: resumidor) adiam.
+Mecânica (para recriar): `statusline.sh` lê `rate_limits.five_hour/seven_day.used_percentage` e `context_window.used_percentage` do JSON do Claude Code, grava `~/.claude/economia/uso.json` (gravação atômica via `.tmp` + `mv`) e mostra `[modelo] ctx N% · 5h N% · semana N% · modo X` (sem limites: custo `$N.NN`). Hook `UserPromptSubmit` `modo.sh` lê o `uso.json` e injeta `additionalContext`. Limites em `~/.claude/economia/limites.conf` (`AMARELO=50 VERMELHO=80 CONTEXTO_ALTO=60`). Ambos os scripts com `export LC_ALL=C`.
+Settings da camada: `"model":"sonnet"`, `"effortLevel":"medium"`, `env.CLAUDE_CODE_SUBAGENT_MODEL="haiku"`, `statusLine` → `~/.claude/economia/statusline.sh`, hook `UserPromptSubmit` → `~/.claude/economia/modo.sh` (timeout 5). Instalador mescla com jq sem apagar o que existe, faz backup, é idempotente; regras do CLAUDE.md global ficam entre `<!-- camada-economia-tokens:inicio -->` e `<!-- camada-economia-tokens:fim -->`.
