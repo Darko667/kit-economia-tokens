@@ -22,6 +22,9 @@ Cada mensagem pode chegar com uma linha "Modo de economia: VERDE/AMARELO/VERMELH
 - Não reler arquivo que acabou de editar; não repetir o mesmo comando para "conferir".
 - Pedido vago ("melhora isso"): perguntar o escopo em uma frase antes de varrer o projeto.
 - Ao trocar de assunto, sugerir `/clear` (o contexto antigo é pago de novo a cada mensagem).
+- Pensar em código: para contar, filtrar, comparar ou resumir dados (logs, listas, JSON, git log), escrever um comando ou script que imprime só a resposta, em vez de trazer os dados para a conversa.
+- JSON enxuto: pedir só os campos necessários (`gh ... --json a,b`, `jq`) e converter em tabela (`jq -r '... | @tsv'`) antes de ler.
+- Saída de comando com "[camada: N linhas do meio omitidas" foi encurtada pela camada; se precisar do meio, ler o arquivo indicado com Grep ou Read com offset/limit.
 
 ## Ao compactar
 

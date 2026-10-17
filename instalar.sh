@@ -46,6 +46,8 @@ echo "Backup em $BACKUP"
 # 1. scripts e limites (limites.conf só se ainda não existir: é seu para ajustar)
 install -m 755 "$ORIGEM/economia/statusline.sh" "$CLAUDE_DIR/economia/statusline.sh"
 install -m 755 "$ORIGEM/economia/modo.sh" "$CLAUDE_DIR/economia/modo.sh"
+install -m 755 "$ORIGEM/economia/aparar.sh" "$CLAUDE_DIR/economia/aparar.sh"
+install -m 755 "$ORIGEM/economia/ler.sh" "$CLAUDE_DIR/economia/ler.sh"
 [ -f "$CLAUDE_DIR/economia/limites.conf" ] || install -m 644 "$ORIGEM/economia/limites.conf" "$CLAUDE_DIR/economia/limites.conf"
 
 # 2. subagentes (não sobrescreve um de mesmo nome, a menos que --forcar)
@@ -76,14 +78,15 @@ if [ -n "$anterior_status" ] && [ "$anterior_status" != "~/.claude/economia/stat
 fi
 jq -s '
   .[0] as $atual | .[1] as $camada
-  | ($atual.hooks.UserPromptSubmit // [])
-    | map(select((.hooks // []) | any((.command // "") | test("economia/modo\\.sh")) | not)) as $outros
-  | $atual
+  | def da_camada: (.hooks // []) | any((.command // "") | test("economia/(modo|ler|aparar)\\.sh"));
+  $atual
   | .model = $camada.model
   | .effortLevel = $camada.effortLevel
+  | .autoCompactWindow = $camada.autoCompactWindow
   | .env = ((.env // {}) + $camada.env)
   | .statusLine = $camada.statusLine
-  | .hooks = ((.hooks // {}) + {UserPromptSubmit: ($outros + $camada.hooks.UserPromptSubmit)})
+  | .hooks = (reduce ($camada.hooks | keys[]) as $ev ((.hooks // {});
+      .[$ev] = (((.[$ev] // []) | map(select(da_camada | not))) + $camada.hooks[$ev])))
 ' "$CLAUDE_DIR/settings.json" "$ORIGEM/settings.camada.json" > "$CLAUDE_DIR/settings.json.novo"
 mv "$CLAUDE_DIR/settings.json.novo" "$CLAUDE_DIR/settings.json"
 
