@@ -5,7 +5,7 @@ O usuário quer gastar o mínimo de tokens possível sem perder qualidade. O CLA
 
 ## Modo de uso
 
-Cada mensagem pode chegar com uma linha "Modo de economia: VERDE/AMARELO/VERMELHO". Ela vem do uso real do plano (janela de 5 horas e semanal).
+Uma mensagem pode chegar com uma linha "Modo de economia: VERDE/AMARELO/VERMELHO". Ela vem do uso real do plano (janela de 5 horas e semanal) e só aparece quando o modo muda; vale a última recebida.
 
 - VERDE: trabalho normal, com as regras abaixo.
 - AMARELO: delegar busca e leitura ao subagente `pesquisador-barato`; respostas curtas; nada de pesquisa ampla sem pedido explícito.
@@ -22,6 +22,9 @@ Cada mensagem pode chegar com uma linha "Modo de economia: VERDE/AMARELO/VERMELH
 - Não reler arquivo que acabou de editar; não repetir o mesmo comando para "conferir".
 - Pedido vago ("melhora isso"): perguntar o escopo em uma frase antes de varrer o projeto.
 - Ao trocar de assunto, sugerir `/clear` (o contexto antigo é pago de novo a cada mensagem).
+- Pensar em código: para contar, filtrar, comparar ou resumir dados (logs, listas, JSON, git log), escrever um comando ou script que imprime só a resposta, em vez de trazer os dados para a conversa.
+- JSON enxuto: pedir só os campos necessários (`gh ... --json a,b`, `jq`) e converter em tabela (`jq -r '... | @tsv'`) antes de ler.
+- Saída de comando com "[camada: N linhas do meio omitidas" foi encurtada pela camada; se precisar do meio, ler o arquivo indicado com Grep ou Read com offset/limit.
 
 ## Ao compactar
 

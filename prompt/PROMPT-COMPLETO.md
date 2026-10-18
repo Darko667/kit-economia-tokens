@@ -8,17 +8,19 @@ Responder em pt-BR. Meta: mínimo de tokens sem perder qualidade. Regra do proje
 - Pedido vago ("melhora isso") → perguntar o escopo em 1 frase antes de varrer.
 - Delegar o que é verboso: busca/leitura/web → `pesquisador-barato` (Haiku); testes/lint/build → `verificador` (Haiku, devolve só falhas); edição já decidida → `executor-rotina` (Sonnet).
 - Opus só para arquitetura, decisão difícil ou após Sonnet falhar 2×; sugerir `/model opusplan`, nunca trocar sozinho.
-- Mudou de assunto → sugerir `/clear`. Contexto ≥ 60% → sugerir `/clear` ou `/compact`.
+- Mudou de assunto → sugerir `/clear`. Contexto ≥ 120 mil tokens → sugerir `/clear` ou `/compact`.
+- Pensar em código: para contar, filtrar ou resumir dados, um comando/script que imprime só a resposta. JSON só com os campos necessários, em tabela (`jq -r … | @tsv`).
+- Saída com "[camada: N linhas do meio omitidas" foi aparada; o meio está no arquivo indicado (Grep ou Read com offset/limit).
 - Ao compactar, manter: decisões, arquivos alterados, comandos que falharam, próximo passo. Descartar saídas longas e explorações sem resultado.
 - Não reinventar a roda: antes de construir, pesquisar o que já existe (nativo do Claude Code primeiro, depois GitHub) e adaptar.
 
-## B2 · Modos de economia (quando a mensagem traz "Modo de economia: …")
+## B2 · Modos de economia (quando a mensagem traz "Modo de economia: …"; vale a última recebida)
 Modo = maior uso entre a janela de 5 h e a semanal do plano. VERDE < 50% ≤ AMARELO < 80% ≤ VERMELHO. Uso com mais de 15 min = desconhecido → VERDE.
 - VERDE: trabalho normal com B1.
 - AMARELO: busca e leitura obrigatoriamente pelo `pesquisador-barato`; respostas curtas; nada de pesquisa ampla sem pedido explícito.
 - VERMELHO: só o pedido atual, no menor escopo; avisar em 1 linha e sugerir `/clear` ou `/model haiku` para tarefa simples; sem tarefas longas nem subagentes em paralelo; tarefas automáticas (ex.: resumidor) adiam.
-Mecânica (para recriar): `statusline.sh` lê `rate_limits.five_hour/seven_day.used_percentage` e `context_window.used_percentage` do JSON do Claude Code, grava `~/.claude/economia/uso.json` (gravação atômica via `.tmp` + `mv`) e mostra `[modelo] ctx N% · 5h N% · semana N% · modo X` (sem limites: custo `$N.NN`). Hook `UserPromptSubmit` `modo.sh` lê o `uso.json` e injeta `additionalContext`. Limites em `~/.claude/economia/limites.conf` (`AMARELO=50 VERMELHO=80 CONTEXTO_ALTO=60`). Ambos os scripts com `export LC_ALL=C`.
-Settings da camada: `"model":"sonnet"`, `"effortLevel":"medium"`, `env.CLAUDE_CODE_SUBAGENT_MODEL="haiku"`, `statusLine` → `~/.claude/economia/statusline.sh`, hook `UserPromptSubmit` → `~/.claude/economia/modo.sh` (timeout 5). Instalador mescla com jq sem apagar o que existe, faz backup, é idempotente; regras do CLAUDE.md global ficam entre `<!-- camada-economia-tokens:inicio -->` e `<!-- camada-economia-tokens:fim -->`.
+Mecânica (para recriar): `statusline.sh` lê `rate_limits.five_hour/seven_day.used_percentage`, `context_window.used_percentage/total_input_tokens` e `prompt_cache.hit_ratio` do JSON do Claude Code, grava `~/.claude/economia/uso.json` (gravação atômica via `.tmp` + `mv`) e mostra `[modelo] ctx N% (Xk) · cache N% · 5h N% · semana N% · modo X` (sem limites: custo `$N.NN`). Hook `UserPromptSubmit` `modo.sh` lê o `uso.json` e injeta `additionalContext` só quando o modo muda na sessão (estado em `sessoes/<session_id>`; `--esquecer` no SessionStart `compact|clear`). Limites em `~/.claude/economia/limites.conf` (`AMARELO=50 VERMELHO=80 CONTEXTO_ALTO_TOKENS=120000 CONTEXTO_ALTO=60 APARAR_LINHAS=120 LER_MIN_LINHAS=600 LER_LIMITE=400`). Ambos os scripts com `export LC_ALL=C`.
+Settings da camada: `"model":"sonnet"`, `"effortLevel":"medium"`, `"autoCompactWindow":200000`, `env.CLAUDE_CODE_SUBAGENT_MODEL="haiku"`, `env.CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION="false"`, `statusLine` → `~/.claude/economia/statusline.sh`, hook `UserPromptSubmit` → `~/.claude/economia/modo.sh` (timeout 5), `PreToolUse` Read → `ler.sh` (limit 400 em código ≥ 600 linhas), `PostToolUse` Bash → `aparar.sh` (saída > 120 linhas vira cabeça + erros + cauda, íntegra em `saidas/`). Instalador mescla com jq sem apagar o que existe, faz backup, é idempotente; regras do CLAUDE.md global ficam entre `<!-- camada-economia-tokens:inicio -->` e `<!-- camada-economia-tokens:fim -->`.
 
 ## B3 · Subagentes (para recriar em `~/.claude/agents/`)
 `pesquisador-barato` — model haiku, effort low, tools Read, Grep, Glob, WebSearch, WebFetch. "Use proactively" para buscar em muitos arquivos, docs, web ou mapear código. Glob/Grep antes de Read; Read só no trecho; para ao ter a resposta; final ≤ 15 linhas com arquivo:linha e trechos ≤ 5 linhas; se não achar, diz onde procurou em 1 linha; nunca edita.

@@ -94,3 +94,23 @@ teste_settings_invalido_aborta_sem_estragar() {
   igual "$(cat "$CLAUDE_DIR/settings.json")" "{ quebrado"
   nao_existe "$CLAUDE_DIR/economia/modo.sh"     # nada instalado pela metade
 }
+
+teste_instala_ganchos_novos_sem_duplicar() {
+  instalar; instalar
+  f="$CLAUDE_DIR/settings.json"
+  jq_igual "$f" '[.hooks.PreToolUse[].hooks[0].command]' '["~/.claude/economia/ler.sh"]'
+  jq_igual "$f" '[.hooks.PostToolUse[].hooks[0].command]' '["~/.claude/economia/aparar.sh"]'
+  jq_igual "$f" '[.hooks.SessionStart[].hooks[0].command]' '["~/.claude/economia/modo.sh --esquecer"]'
+  jq_igual "$f" '.autoCompactWindow' '200000'
+  [ -x "$CLAUDE_DIR/economia/aparar.sh" ] || falha "aparar.sh sem permissão de execução"
+  [ -x "$CLAUDE_DIR/economia/ler.sh" ] || falha "ler.sh sem permissão de execução"
+}
+
+teste_desinstalar_tira_ganchos_novos_e_mantem_os_do_usuario() {
+  mkdir -p "$CLAUDE_DIR"
+  echo '{"hooks":{"PreToolUse":[{"hooks":[{"type":"command","command":"meu.sh"}]}]}}' > "$CLAUDE_DIR/settings.json"
+  instalar; desinstalar
+  jq_igual "$CLAUDE_DIR/settings.json" '.' '{"hooks":{"PreToolUse":[{"hooks":[{"type":"command","command":"meu.sh"}]}]}}'
+  nao_existe "$CLAUDE_DIR/economia/aparar.sh"
+  nao_existe "$CLAUDE_DIR/economia/ler.sh"
+}

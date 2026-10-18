@@ -1,8 +1,10 @@
 {
   "model": "sonnet",
   "effortLevel": "medium",
+  "autoCompactWindow": 200000,
   "env": {
-    "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"
+    "CLAUDE_CODE_SUBAGENT_MODEL": "haiku",
+    "CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION": "false"
   },
   "statusLine": {
     "type": "command",
@@ -15,6 +17,42 @@
           {
             "type": "command",
             "command": "~/.claude/economia/modo.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/economia/ler.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/economia/aparar.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/economia/modo.sh --esquecer",
             "timeout": 5
           }
         ]

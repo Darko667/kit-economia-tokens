@@ -29,3 +29,5 @@ Registro novo (não precisa ler nada antes): `testes/registro/novo.sh bug|dificu
 | D08 | Reescrever o teste gerado pelo novo.sh trocou o nome da função | dificuldades/D08-reescrever-o-teste-gerado-pelo-novo-sh-t.md |
 | D09 | Contagem da suíte deu 59 em vez de 60 uma vez, sem reproduzir | dificuldades/D09-contagem-da-suite-deu-59-em-vez-de-60-um.md |
 | D10 | Reprodução numa cópia instalou no ~/.claude real | dificuldades/D10-reproducao-numa-copia-instalou-no-claude.md |
+| D11 | claude -p dentro de laço while lia o resto do arquivo de tarefas | dificuldades/D11-claude-p-dentro-de-laco-while-lia-o-rest.md |
+| D12 | Variáveis da sessão na nuvem vazavam para o claude -p do teste A/B | dificuldades/D12-variaveis-da-sessao-na-nuvem-vazavam-par.md |

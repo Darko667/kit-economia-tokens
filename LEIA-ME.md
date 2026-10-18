@@ -14,9 +14,12 @@ Em `docs/`: comece por [`docs/00-INDICE.md`](docs/00-INDICE.md) e abra só a par
 | Modelo padrão Sonnet, esforço médio | Para de gastar Opus em tarefa simples. Opus só quando você pede (`/model opus` ou `/model opusplan`) | `settings.json` |
 | Subagentes em Haiku por padrão | Toda busca, leitura e teste delegados rodam no modelo mais barato | `settings.json` (`CLAUDE_CODE_SUBAGENT_MODEL`) |
 | 3 subagentes prontos | `pesquisador-barato` (Haiku): busca e devolve resumo. `verificador` (Haiku): roda testes e devolve só as falhas. `executor-rotina` (Sonnet): edição já decidida | `agents/` |
-| Modo de economia automático | A barra de status lê o uso real do seu plano (janela de 5 h e semanal). A cada mensagem, um hook avisa o Claude: VERDE abaixo de 50%, AMARELO de 50% a 80%, VERMELHO acima de 80%. Em cada modo ele aperta o cinto mais um pouco (regras no CLAUDE.md) | `economia/` |
+| Modo de economia automático | A barra de status lê o uso real do seu plano (janela de 5 h e semanal). Quando o modo muda, um hook avisa o Claude: VERDE abaixo de 50%, AMARELO de 50% a 80%, VERMELHO acima de 80%. Em cada modo ele aperta o cinto mais um pouco (regras no CLAUDE.md) | `economia/` |
 | Regras de economia | Respostas curtas, ler só o trecho necessário, delegar o que é verboso, sugerir `/clear` ao mudar de assunto. O CLAUDE.md de cada projeto continua mandando | `CLAUDE.md` (bloco entre marcadores) |
-| Barra de status | Mostra modelo, contexto usado, % da janela de 5 h e da semana, e o modo | `economia/statusline.sh` |
+| Barra de status | Mostra modelo, contexto usado (em % e em tokens), aproveitamento do cache, % da janela de 5 h e da semana, e o modo | `economia/statusline.sh` |
+| Aparador de saída | Saída de comando com mais de 120 linhas chega ao Claude só com o começo, as linhas de erro e o fim; a íntegra fica num arquivo que ele pode abrir | `economia/aparar.sh` |
+| Guarda de leitura | Arquivo de código com 600 linhas ou mais é lido só nas 400 primeiras, com aviso do tamanho real, quando o Claude não pediu um trecho | `economia/ler.sh` |
+| Compactação em 200 mil tokens | Modelos com janela de 1M só compactariam perto de 967 mil; cada mensagem paga o contexto inteiro de novo | `settings.json` (`autoCompactWindow`) |
 
 Os limites dos modos se ajustam em `~/.claude/economia/limites.conf`.
 

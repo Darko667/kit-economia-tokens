@@ -18,7 +18,12 @@ Meta: gastar o mínimo de tokens sem perder qualidade. Responder sempre em pt-BR
 - **Opus** só para arquitetura, decisão difícil ou depois que Sonnet falhou 2×.
   Sugerir `/model opusplan` ao usuário; nunca trocar sozinho.
 - **Trocou de assunto** → sugerir `/clear` (o contexto antigo é pago de novo a cada mensagem).
-- **Contexto ≥ 60%** → sugerir `/clear` ou `/compact` (o hook avisa).
+- **Contexto ≥ 120 mil tokens** → sugerir `/clear` ou `/compact` (o hook avisa; a compactação automática acontece em 200 mil).
+- **Pensar em código**: para contar, filtrar, comparar ou resumir dados (logs, listas, JSON, git log), escrever um comando
+  ou script que imprime só a resposta, em vez de trazer os dados para a conversa.
+- **JSON enxuto**: pedir só os campos necessários (`gh ... --json a,b`, `jq`) e converter em tabela (`@tsv`) antes de ler.
+- **Saída aparada** (`[camada: N linhas do meio omitidas ...]`): se precisar do meio, ler o arquivo indicado com Grep
+  ou Read com offset/limit.
 - **Não reinventar a roda**: antes de construir, pesquisar o que já existe (nativo do Claude Code primeiro,
   depois GitHub) e adaptar.
 - **Pedido claro = executar direto** e relatar; não ficar pedindo confirmação de novo
@@ -30,7 +35,8 @@ Meta: gastar o mínimo de tokens sem perder qualidade. Responder sempre em pt-BR
 
 ## Modos de economia
 
-O hook `modo.sh` acrescenta a cada mensagem: `Modo de economia: VERDE/AMARELO/VERMELHO (…)`.
+O hook `modo.sh` acrescenta `Modo de economia: VERDE/AMARELO/VERMELHO (…)` à mensagem quando o modo muda na sessão
+(e de novo depois de compactar ou de `/clear`). Vale a última linha recebida. `MODO_SEMPRE=1` repete em toda mensagem.
 O modo vem do **maior** uso entre a janela de 5 h e a semanal do plano.
 
 | Modo | Faixa | Comportamento |

@@ -31,3 +31,11 @@ teste_modo_reflete_o_uso_recem_gravado() {
 teste_entrada_vazia_nao_quebra() {
   contem "$(status '{}')" "[?] ctx 0%"
 }
+
+teste_grava_tokens_e_mostra_cache() {
+  e='{"model":{"display_name":"Sonnet"},"context_window":{"used_percentage":15,"total_input_tokens":150000},"rate_limits":{"five_hour":{"used_percentage":10},"seven_day":{"used_percentage":5}},"prompt_cache":{"hit_ratio":0.91}}'
+  linha=$(status "$e")
+  contem "$linha" "ctx 15% (150k)"
+  contem "$linha" "cache 91%"
+  jq_igual "$CLAUDE_DIR/economia/uso.json" '.tokens' '150000'
+}

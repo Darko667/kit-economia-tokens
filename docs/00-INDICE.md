@@ -17,7 +17,7 @@ Cada parte tem no máximo 300 linhas (regra de tamanho de `.md`). Fonte da verda
 
 1. **Modelo certo por tarefa**: conversa principal em Sonnet (esforço médio); subagentes em Haiku; Opus só a pedido.
 2. **Delegar o verboso**: busca → `pesquisador-barato`; testes → `verificador`; edição decidida → `executor-rotina`.
-3. **Modo automático**: a barra de status mede o uso do plano; um hook injeta "Modo de economia: X" em cada mensagem.
+3. **Modo automático**: a barra de status mede o uso do plano; um hook injeta "Modo de economia: X" quando o modo muda.
 4. **Regras fixas** no `~/.claude/CLAUDE.md`: resposta curta, ler só o trecho, não reler, `/clear` ao trocar de assunto.
 5. **Memória enxuta**: índice de 1 linha por nota; abrir só o arquivo da linha; `.md` ≤ 300 linhas.
 6. **Qualidade sem retrabalho**: todo bug vira teste permanente; hook `Stop` roda a suíte sozinho.
@@ -29,7 +29,7 @@ Cada parte tem no máximo 300 linhas (regra de tamanho de `.md`). Fonte da verda
 | Código-fonte da camada (instalador, testes, prompt em blocos) | raiz deste repositório |
 | Regras globais | `~/.claude/CLAUDE.md` |
 | Agentes | `~/.claude/agents/*.md` |
-| Scripts do modo e barra | `~/.claude/economia/` (`modo.sh`, `statusline.sh`, `limites.conf`, `uso.json`) |
+| Scripts do modo e barra | `~/.claude/economia/` (`modo.sh`, `statusline.sh`, `aparar.sh`, `ler.sh`, `limites.conf`, `uso.json`; saídas aparadas em `saidas/`) |
 | Configuração | `~/.claude/settings.json` |
 | Memória única (opcional) | `~/memoria/` (ver parte 05) |
 | Prompt do sistema em blocos (B1–B7) | `prompt/` |

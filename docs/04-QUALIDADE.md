@@ -37,9 +37,9 @@ teste no arquivo do seu número.
 
 - `testes/rodar.sh [-q] [filtro]` (`rodar.sh bug` = só regressão). Cada teste em subshell com **HOME temporário**:
   nunca toca o `~/.claude` real.
-- Casos: `instalacao.sh`, `modo.sh`, `statusline.sh`, `gancho.sh`, `registro.sh`, `prompt.sh`, `regressao/`.
+- Casos: `instalacao.sh`, `modo.sh`, `statusline.sh`, `aparar.sh`, `ler.sh`, `gancho.sh`, `registro.sh`, `prompt.sh`, `regressao/`.
 - Lint com ShellCheck dentro da suíte; ShellCheck ausente avisa e conta como pulado (BUG-009).
-- Estado atual: 61 testes.
+- Estado atual: 85 testes.
 - Para economizar contexto, quem roda é o `verificador` (devolve só falhas).
 
 ## Hook Stop (testes automáticos)
