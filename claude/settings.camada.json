@@ -45,6 +45,18 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/economia/modo.sh --esquecer",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }

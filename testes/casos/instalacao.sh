@@ -100,6 +100,7 @@ teste_instala_ganchos_novos_sem_duplicar() {
   f="$CLAUDE_DIR/settings.json"
   jq_igual "$f" '[.hooks.PreToolUse[].hooks[0].command]' '["~/.claude/economia/ler.sh"]'
   jq_igual "$f" '[.hooks.PostToolUse[].hooks[0].command]' '["~/.claude/economia/aparar.sh"]'
+  jq_igual "$f" '[.hooks.SessionStart[].hooks[0].command]' '["~/.claude/economia/modo.sh --esquecer"]'
   jq_igual "$f" '.autoCompactWindow' '200000'
   [ -x "$CLAUDE_DIR/economia/aparar.sh" ] || falha "aparar.sh sem permissão de execução"
   [ -x "$CLAUDE_DIR/economia/ler.sh" ] || falha "ler.sh sem permissão de execução"

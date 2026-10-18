@@ -7,8 +7,13 @@
 | `model` | `sonnet` | Conversa principal sai do Opus por padrão |
 | `effortLevel` | `medium` | Menos raciocínio gasto em tarefa simples |
 | `env.CLAUDE_CODE_SUBAGENT_MODEL` | `haiku` | Subagentes no modelo mais barato |
+| `autoCompactWindow` | `200000` | Compacta em 200 mil tokens (sem isso, modelos com janela de 1M só compactam perto de 967 mil) |
+| `env.CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION` | `false` | Desliga as sugestões de próximo pedido (cada uma é uma chamada extra) |
 | `statusLine` | `~/.claude/economia/statusline.sh` | Barra de status + medição do uso |
-| hook `UserPromptSubmit` | `~/.claude/economia/modo.sh` (timeout 5) | Injeta o modo em cada mensagem |
+| hook `UserPromptSubmit` | `~/.claude/economia/modo.sh` (timeout 5) | Injeta o modo quando ele muda |
+| hook `SessionStart` (`compact\|clear`) | `~/.claude/economia/modo.sh --esquecer` (timeout 5) | Faz o modo voltar a aparecer depois de compactar ou limpar |
+| hook `PreToolUse` (`Read`) | `~/.claude/economia/ler.sh` (timeout 5) | Limita a leitura de arquivo de código longo |
+| hook `PostToolUse` (`Bash`) | `~/.claude/economia/aparar.sh` (timeout 10) | Encurta saídas longas de comandos |
 | hook `Stop` (opcional, `testes/ganchos/ativar.sh`) | `testes/ganchos/ao-parar.sh` (timeout 180) | Roda a suíte do projeto quando algo mudou |
 | `autoMemoryDirectory` (opcional, manual) | `~/memoria` | Uma memória só para todas as pastas |
 
@@ -22,24 +27,41 @@ Claude Code ──JSON──> statusline.sh ──grava──> ~/.claude/economi
 ```
 
 **statusline.sh**
-- Lê do JSON: `model.display_name`, `context_window.used_percentage`,
+- Lê do JSON: `model.display_name`, `context_window.used_percentage`, `context_window.total_input_tokens`, `prompt_cache.hit_ratio`,
   `rate_limits.five_hour.used_percentage`, `rate_limits.seven_day.used_percentage`, `cost.total_cost_usd`.
-- Grava `uso.json` (`cinco_horas`, `semanal`, `contexto`, `atualizado`) de forma atômica (`.tmp` + `mv`),
+- Grava `uso.json` (`cinco_horas`, `semanal`, `contexto`, `tokens`, `atualizado`) de forma atômica (`.tmp` + `mv`),
   só quando o plano informa os limites.
-- Mostra: `[modelo] ctx N% · 5h N% · semana N% · modo X` (sem limites: custo `$N.NN`).
+- Mostra: `[modelo] ctx N% (Xk) · cache N% · 5h N% · semana N% · modo X` (sem limites: custo `$N.NN`).
 
 **modo.sh**
 - `modo.sh` → JSON do hook com `hookSpecificOutput.additionalContext`; `modo.sh --so-modo` → só o nome.
 - Uso com mais de 900 s (`MAX_IDADE`) = desconhecido → VERDE.
-- Maior entre 5 h e semanal decide o modo; contexto ≥ `CONTEXTO_ALTO` acrescenta a sugestão de `/clear`/`/compact`.
+- Maior entre 5 h e semanal decide o modo; contexto ≥ `CONTEXTO_ALTO_TOKENS` (ou ≥ `CONTEXTO_ALTO` % quando não há
+  tokens) acrescenta a sugestão de `/clear`/`/compact`.
+- Só fala quando o estado (modo + aviso de contexto) muda na sessão: guarda em `sessoes/<session_id>` (apagado após 7 dias).
+  `--esquecer` (hook SessionStart) apaga o estado da sessão. `MODO_SEMPRE=1` volta a falar em toda mensagem.
 - Os dois scripts usam `export LC_ALL=C` (BUG-001: números com vírgula em pt_BR).
+
+**aparar.sh** (PostToolUse do Bash)
+- Saída com mais de `APARAR_LINHAS` linhas: mantém as 40 primeiras, até 40 linhas do meio com erro/aviso
+  (`error`, `fail`, `warn`, `traceback`, `denied`…) e as 30 últimas, com o marcador `[camada: N linhas do meio omitidas …]`.
+- A íntegra fica em `~/.claude/economia/saidas/` (apagada após 1 dia). Devolve `updatedToolOutput`. `APARAR_LINHAS=0` desliga.
+
+**ler.sh** (PreToolUse do Read)
+- Read sem `offset`/`limit`/`allow_large` de arquivo de código com `LER_MIN_LINHAS` ou mais linhas ganha `limit: LER_LIMITE`
+  e um aviso com o total de linhas. Não bloqueia nada. `LER_LIMITE=0` desliga.
 
 **limites.conf**
 ```
 AMARELO=50
 VERMELHO=80
+CONTEXTO_ALTO_TOKENS=120000
 CONTEXTO_ALTO=60
+APARAR_LINHAS=120
+LER_MIN_LINHAS=600
+LER_LIMITE=400
 ```
+`MODO_SEMPRE=1` (não vem no arquivo) repete a linha do modo em toda mensagem.
 
 ## Instalação (raiz deste repositório)
 

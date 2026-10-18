@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Decide o modo de economia (VERDE, AMARELO, VERMELHO) pelo uso do plano e,
-# como hook UserPromptSubmit, anexa uma linha de contexto a cada mensagem.
+# como hook UserPromptSubmit, anexa uma linha de contexto quando o modo muda.
 #   modo.sh            -> saída JSON para o hook
 #   modo.sh --so-modo  -> só o nome do modo (usado pela barra de status)
+#   modo.sh --esquecer -> hook SessionStart (compact|clear): volta a falar na próxima mensagem
 # Limites ajustáveis em ~/.claude/economia/limites.conf
 set -u
 export LC_ALL=C   # números com ponto decimal, mesmo em pt_BR (BUG-001)
@@ -20,6 +21,11 @@ MAX_IDADE=900   # segundos; uso mais velho que isso é tratado como desconhecido
 sessao=""
 if [ "${1:-}" != "--so-modo" ] && [ ! -t 0 ]; then
   sessao=$(jq -r '.session_id // ""' 2>/dev/null | tr -cd 'A-Za-z0-9_-')
+fi
+# depois de compactar ou limpar, a linha antiga do modo saiu do contexto: esquece o estado da sessão
+if [ "${1:-}" = "--esquecer" ]; then
+  [ -n "$sessao" ] && rm -f "$dir/sessoes/$sessao"
+  exit 0
 fi
 
 h5=""; sem=""; ctx=0; tokens=""

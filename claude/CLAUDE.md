@@ -5,7 +5,7 @@ O usuário quer gastar o mínimo de tokens possível sem perder qualidade. O CLA
 
 ## Modo de uso
 
-Cada mensagem pode chegar com uma linha "Modo de economia: VERDE/AMARELO/VERMELHO". Ela vem do uso real do plano (janela de 5 horas e semanal).
+Uma mensagem pode chegar com uma linha "Modo de economia: VERDE/AMARELO/VERMELHO". Ela vem do uso real do plano (janela de 5 horas e semanal) e só aparece quando o modo muda; vale a última recebida.
 
 - VERDE: trabalho normal, com as regras abaixo.
 - AMARELO: delegar busca e leitura ao subagente `pesquisador-barato`; respostas curtas; nada de pesquisa ampla sem pedido explícito.

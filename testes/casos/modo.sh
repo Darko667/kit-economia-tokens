@@ -84,3 +84,11 @@ teste_modo_sempre_repete() {
   modo_sessao >/dev/null
   contem "$(modo_sessao)" "Modo de economia: VERDE"
 }
+
+teste_esquecer_volta_a_falar_depois_de_compactar() {
+  uso 10 10
+  modo_sessao >/dev/null
+  igual "$(modo_sessao)" ""
+  echo '{"session_id":"s1","source":"compact"}' | "$RAIZ/claude/economia/modo.sh" --esquecer
+  contem "$(modo_sessao)" "Modo de economia: VERDE" "depois de compactar a linha do modo deveria voltar"
+}
